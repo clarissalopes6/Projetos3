@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Clientes</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sistema de Pesquisas</h1>
+            <nav>
+                <span class="user-info">Olá, <strong id="userName"></strong></span>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/clients">Clientes</a>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="alert alert-success" id="alertSuccess"></div>
+        <div class="alert alert-error" id="alertError"></div>
+
+        <div class="card">
+            <button class="btn-new" onclick="showForm()">+ Novo Cliente</button>
+
+            <div class="form-section" id="formSection">
+                <h2 id="formTitle">Novo Cliente</h2>
+                <form id="clientForm">
+                    <input type="hidden" id="clientId">
+                    
+                    <div class="form-group">
+                        <label for="name">Nome *</label>
+                        <input type="text" id="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Telefone</label>
+                        <input type="text" id="phone">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpfCnpj">CPF/CNPJ *</label>
+                        <input type="text" id="cpfCnpj" required>
+                    </div>
+
+                    <button type="submit">Salvar</button>
+                    <button type="button" class="btn-cancel" onclick="hideForm()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Lista de Clientes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                        <th>CPF/CNPJ</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Carregando...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/clients';
+
+        // Carregar clientes ao iniciar a página
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkSession();
+            loadClients();
+        });
+
+        // Verificar sessão
+        async function checkSession() {
+            try {
+                const response = await fetch('/api/auth/check');
+                if (response.ok) {
+                    const admin = await response.json();
+                    document.getElementById('userName').textContent = admin.name;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        // Carregar lista de clientes
+        async function loadClients() {
+            try {
+                const response = await fetch(API_URL);
+                const clients = await response.json();
+                
+                const tbody = document.getElementById('clientsTableBody');
+                
+                if (clients.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum cliente cadastrado</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = clients.map(client => `
+                    <tr>
+                        <td>${client.name}</td>
+                        <td>${client.email}</td>
+                        <td>${client.phone || '-'}</td>
+                        <td>${client.cpfCnpj}</td>
+                        <td class="${client.active ? 'status-active' : 'status-inactive'}">
+                            ${client.active ? 'Ativo' : 'Inativo'}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-edit" onclick="editClient(${client.id})">Editar</button>
+                                <button class="btn-toggle" onclick="toggleActive(${client.id})">
+                                    ${client.active ? 'Desativar' : 'Ativar'}
+                                </button>
+                                <button class="btn-delete" onclick="deleteClient(${client.id})">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showError('Erro ao carregar clientes');
+                console.error(error);
+            }
+        }
+
+        // Mostrar formulário
+        function showForm() {
+            document.getElementById('formSection').classList.add('active');
+            document.getElementById('formTitle').textContent = 'Novo Cliente';
+            document.getElementById('clientForm').reset();
+            document.getElementById('clientId').value = '';
+        }
+
+        // Esconder formulário
+        function hideForm() {
+            document.getElementById('formSection').classList.remove('active');
+            document.getElementById('clientForm').reset();
+        }
+
+        // Submeter formulário
+        document.getElementById('clientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const clientId = document.getElementById('clientId').value;
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                cpfCnpj: document.getElementById('cpfCnpj').value
+            };
+
+            try {
+                const url = clientId ? `${API_URL}/${clientId}` : API_URL;
+                const method = clientId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showSuccess(clientId ? 'Cliente atualizado com sucesso!' : 'Cliente cadastrado com sucesso!');
+                    hideForm();
+                    loadClients();
+                } else {
+                    const errorText = await response.text();
+                    showError(errorText || 'Erro ao salvar cliente');
+                }
+            } catch (error) {
+                showError('Erro ao salvar cliente');
+                console.error(error);
+            }
+        });
+
+        // Editar cliente
+        async function editClient(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const client = await response.json();
+
+                document.getElementById('clientId').value = client.id;
+                document.getElementById('name').value = client.name;
+                document.getElementById('email').value = client.email;
+                document.getElementById('phone').value = client.phone || '';
+                document.getElementById('cpfCnpj').value = client.cpfCnpj;
+                
+                document.getElementById('formTitle').textContent = 'Editar Cliente';
+                document.getElementById('formSection').classList.add('active');
+            } catch (error) {
+                showError('Erro ao carregar cliente');
+                console.error(error);
+            }
+        }
+
+        // Alternar status ativo/inativo
+        async function toggleActive(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}/toggle-active`, {
+                    method: 'PATCH'
+                });
+
+                if (response.ok) {
+                    showSuccess('Status alterado com sucesso!');
+                    loadClients();
+                } else {
+                    showError('Erro ao alterar status');
+                }
+            } catch (error) {
+                showError('Erro ao alterar status');
+                console.error(error);
+            }
+        }
+
+        // Excluir cliente
+        async function deleteClient(id) {
+            if (!confirm('Tem certeza que deseja excluir este cliente?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showSuccess('Cliente excluído com sucesso!');
+                    loadClients();
+                } else {
+                    showError('Erro ao excluir cliente');
+                }
+            } catch (error) {
+                showError('Erro ao excluir cliente');
+                console.error(error);
+            }
+        }
+
+        // Mostrar mensagem de sucesso
+        function showSuccess(message) {
+            const alert = document.getElementById('alertSuccess');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        // Mostrar mensagem de erro
+        function showError(message) {
+            const alert = document.getElementById('alertError');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

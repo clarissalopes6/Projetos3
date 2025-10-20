@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Pesquisas</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sistema de Pesquisas</h1>
+            <nav>
+                <span class="user-info">Olá, <strong id="userName"></strong></span>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/clients">Clientes</a>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Bem-vindo ao Sistema de Pesquisas</h2>
+            <p>Gerencie seus clientes e pesquisas de forma simples e organizada.</p>
+            <p>Use o menu acima para navegar.</p>
+        </div>
+
+        <div class="card">
+            <h2>Ações Rápidas</h2>
+            <a href="/clients" style="text-decoration: none;">
+                <button class="btn-new">Gerenciar Clientes</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Verificar sessão ao carregar
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkSession();
+        });
+
+        async function checkSession() {
+            try {
+                const response = await fetch('/api/auth/check');
+                if (response.ok) {
+                    const admin = await response.json();
+                    document.getElementById('userName').textContent = admin.name;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>
