@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Pesquisas</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 80px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1>Sistema de Pesquisas</h1>
+        <nav>
+            <span class="user-info">Olá, <strong id="userName"></strong></span>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/clients">Clientes</a>
+            <a href="/surveys">Pesquisas</a>
+            <button class="btn-logout" onclick="logout()">Sair</button>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <div class="alert alert-success" id="alertSuccess"></div>
+    <div class="alert alert-error" id="alertError"></div>
+
+    <div class="card">
+        <button class="btn-new" onclick="showForm()">+ Nova Pesquisa</button>
+
+        <div class="form-section" id="formSection">
+            <h2 id="formTitle">Nova Pesquisa</h2>
+            <form id="surveyForm">
+                <input type="hidden" id="surveyId">
+
+                <div class="form-group">
+                    <label for="title">Título *</label>
+                    <input type="text" id="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <textarea id="description"></textarea>
+                </div>
+
+                <button type="submit">Salvar</button>
+                <button type="button" class="btn-cancel" onclick="hideForm()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Lista de Pesquisas</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="surveysTableBody">
+            <tr>
+                <td colspan="4" style="text-align: center;">Carregando...</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    const API_URL = '/api/surveys';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkSession();
+        loadSurveys();
+    });
+
+    async function checkSession() {
+        try {
+            const response = await fetch('/api/auth/check');
+            if (response.ok) {
+                const admin = await response.json();
+                document.getElementById('userName').textContent = admin.name;
+            } else {
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            window.location.href = '/login';
+        }
+    }
+
+    async function logout() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/login';
+        } catch (error) {
+            window.location.href = '/login';
+        }
+    }
+
+    async function loadSurveys() {
+        try {
+            const response = await fetch(API_URL);
+            const surveys = await response.json();
+
+            const tbody = document.getElementById('surveysTableBody');
+
+            if (surveys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nenhuma pesquisa cadastrada</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = surveys.map(survey => `
+                    <tr>
+                        <td>${survey.title}</td>
+                        <td>${survey.description || '-'}</td>
+                        <td class="${survey.active ? 'status-active' : 'status-inactive'}">
+                            ${survey.active ? 'Ativa' : 'Inativa'}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-edit" onclick="editSurvey(${survey.id})">Editar</button>
+                                <button class="btn-toggle" onclick="toggleActive(${survey.id})">
+                                    ${survey.active ? 'Desativar' : 'Ativar'}
+                                </button>
+                                <button class="btn-delete" onclick="deleteSurvey(${survey.id})">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+        } catch (error) {
+            showError('Erro ao carregar pesquisas');
+            console.error(error);
+        }
+    }
+
+    function showForm() {
+        document.getElementById('formSection').classList.add('active');
+        document.getElementById('formTitle').textContent = 'Nova Pesquisa';
+        document.getElementById('surveyForm').reset();
+        document.getElementById('surveyId').value = '';
+    }
+
+    function hideForm() {
+        document.getElementById('formSection').classList.remove('active');
+        document.getElementById('surveyForm').reset();
+    }
+
+    document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const surveyId = document.getElementById('surveyId').value;
+        const data = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value
+        };
+
+        try {
+            const url = surveyId ? `${API_URL}/${surveyId}` : API_URL;
+            const method = surveyId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showSuccess(surveyId ? 'Pesquisa atualizada com sucesso!' : 'Pesquisa cadastrada com sucesso!');
+                hideForm();
+                loadSurveys();
+            } else {
+                const errorText = await response.text();
+                showError(errorText || 'Erro ao salvar pesquisa');
+            }
+        } catch (error) {
+            showError('Erro ao salvar pesquisa');
+            console.error(error);
+        }
+    });
+
+    async function editSurvey(id) {
+        try {
+            const response = await fetch(`${API_URL}/${id}`);
+            const survey = await response.json();
+
+            document.getElementById('surveyId').value = survey.id;
+            document.getElementById('title').value = survey.title;
+            document.getElementById('description').value = survey.description || '';
+
+            document.getElementById('formTitle').textContent = 'Editar Pesquisa';
+            document.getElementById('formSection').classList.add('active');
+        } catch (error) {
+            showError('Erro ao carregar pesquisa');
+            console.error(error);
+        }
+    }
+
+    async function toggleActive(id) {
+        try {
+            const response = await fetch(`${API_URL}/${id}/toggle-active`, {
+                method: 'PATCH'
+            });
+
+            if (response.ok) {
+                showSuccess('Status alterado com sucesso!');
+                loadSurveys();
+            } else {
+                showError('Erro ao alterar status');
+            }
+        } catch (error) {
+            showError('Erro ao alterar status');
+            console.error(error);
+        }
+    }
+
+    async function deleteSurvey(id) {
+        if (!confirm('Tem certeza que deseja excluir esta pesquisa? Isso pode apagar respostas associadas.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showSuccess('Pesquisa excluída com sucesso!');
+                loadSurveys();
+            } else {
+                showError('Erro ao excluir pesquisa');
+            }
+        } catch (error) {
+            showError('Erro ao excluir pesquisa');
+            console.error(error);
+        }
+    }
+
+    function showSuccess(message) {
+        const alert = document.getElementById('alertSuccess');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 3000);
+    }
+
+    function showError(message) {
+        const alert = document.getElementById('alertError');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 3000);
+    }
+</script>
+</body>
+</html>
