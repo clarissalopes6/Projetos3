@@ -20,7 +20,13 @@ public class ClientService {
     }
 
     private ClientDTO convertToDTO (Client client) {
-        return new ClientDTO(client.getId(), client.getName(), client.getEmail());
+        return new ClientDTO(
+            client.getId(), 
+            client.getName(), 
+            client.getEmail(),
+            client.getPhone(),
+            client.getCpfCnpj()
+        );
     }
 
     public List<ClientDTO> getAllClients() {
@@ -39,7 +45,8 @@ public class ClientService {
         Client client = new Client();
         client.setName(dto.getName());
         client.setEmail(dto.getEmail());
-        client.setPassword(dto.getPassword());
+        client.setPhone(dto.getPhone());
+        client.setCpfCnpj(dto.getCpfCnpj());
 
         Client savedClient = clientRepository.save(client);
         return convertToDTO(savedClient);
@@ -49,9 +56,8 @@ public class ClientService {
         return clientRepository.findById(id).map(client -> {
             client.setName(dto.getName());
             client.setEmail(dto.getEmail());
-            if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-                client.setPassword(dto.getPassword());
-            }
+            client.setPhone(dto.getPhone());
+            client.setCpfCnpj(dto.getCpfCnpj());
 
             Client update = clientRepository.save(client);
             return convertToDTO(update);

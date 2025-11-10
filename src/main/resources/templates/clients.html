@@ -88,27 +88,58 @@
             loadClients();
         });
 
-        // Verificar sessão
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return null;
+            }
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
         async function checkSession() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
             try {
-                const response = await fetch('/api/auth/check');
+                const response = await fetch('/api/auth/check', {
+                    headers: getAuthHeaders()
+                });
+                
                 if (response.ok) {
                     const admin = await response.json();
                     document.getElementById('userName').textContent = admin.name;
                 } else {
+                    localStorage.clear();
                     window.location.href = '/login';
                 }
             } catch (error) {
+                localStorage.clear();
                 window.location.href = '/login';
             }
         }
 
-        // Logout
         async function logout() {
             try {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                window.location.href = '/login';
+                const token = localStorage.getItem('token');
+                if (token) {
+                    await fetch('/api/auth/logout', { 
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                }
             } catch (error) {
+                console.error('Erro ao fazer logout', error);
+            } finally {
+                localStorage.clear();
                 window.location.href = '/login';
             }
         }
@@ -116,7 +147,9 @@
         // Carregar lista de clientes
         async function loadClients() {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL, {
+                    headers: getAuthHeaders()
+                });
                 const clients = await response.json();
                 
                 const tbody = document.getElementById('clientsTableBody');
@@ -184,9 +217,7 @@
 
                 const response = await fetch(url, {
                     method: method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify(data)
                 });
 
@@ -196,18 +227,22 @@
                     loadClients();
                 } else {
                     const errorText = await response.text();
+                    console.error('Erro do servidor:', errorText);
+                    console.error('Status:', response.status);
                     showError(errorText || 'Erro ao salvar cliente');
                 }
             } catch (error) {
-                showError('Erro ao salvar cliente');
-                console.error(error);
+                console.error('Erro na requisição:', error);
+                showError('Erro ao salvar cliente: ' + error.message);
             }
         });
 
         // Editar cliente
         async function editClient(id) {
             try {
-                const response = await fetch(`${API_URL}/${id}`);
+                const response = await fetch(`${API_URL}/${id}`, {
+                    headers: getAuthHeaders()
+                });
                 const client = await response.json();
 
                 document.getElementById('clientId').value = client.id;
@@ -228,7 +263,8 @@
         async function toggleActive(id) {
             try {
                 const response = await fetch(`${API_URL}/${id}/toggle-active`, {
-                    method: 'PATCH'
+                    method: 'PATCH',
+                    headers: getAuthHeaders()
                 });
 
                 if (response.ok) {
@@ -251,7 +287,8 @@
 
             try {
                 const response = await fetch(`${API_URL}/${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
                 });
 
                 if (response.ok) {

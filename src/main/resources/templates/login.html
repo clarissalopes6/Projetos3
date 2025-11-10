@@ -53,6 +53,10 @@
                 });
 
                 if (response.ok) {
+                    const result = await response.json();
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('sessionId', result.sessionId);
+                    localStorage.setItem('user', JSON.stringify(result.admin));
                     window.location.href = '/dashboard';
                 } else {
                     const errorText = await response.text();

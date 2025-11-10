@@ -21,6 +21,9 @@ public class Client {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column
+    private String phone;
+
     @Column(nullable = false)
-    private String password;
+    private String cpfCnpj;
 }

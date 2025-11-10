@@ -1,6 +1,7 @@
 package projetosg10.survey.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import projetosg10.survey.dto.AdminDTO;
@@ -15,6 +16,9 @@ public class AdminService {
     @Autowired
     private AdminRepository adminRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Transactional
     public AdminDTO register(RegisterDTO dto) {
         if (adminRepository.existsByEmail(dto.getEmail())) {
@@ -24,8 +28,7 @@ public class AdminService {
         Admin admin = new Admin();
         admin.setName(dto.getName());
         admin.setEmail(dto.getEmail());
-
-        admin.setPassword(dto.getPassword());
+        admin.setPassword(passwordEncoder.encode(dto.getPassword()));
         admin.setActive(true);
 
         admin = adminRepository.save(admin);
@@ -41,7 +44,7 @@ public class AdminService {
             throw new RuntimeException("Usuário inativo");
         }
 
-        if (!admin.getPassword().equals(dto.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), admin.getPassword())) {
             throw new RuntimeException("Email ou senha inválidos");
         }
 
@@ -51,6 +54,13 @@ public class AdminService {
     @Transactional(readOnly = true)
     public AdminDTO findById(Long id) {
         Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Administrador não encontrado"));
+        return toDTO(admin);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminDTO findByEmail(String email) {
+        Admin admin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Administrador não encontrado"));
         return toDTO(admin);
     }

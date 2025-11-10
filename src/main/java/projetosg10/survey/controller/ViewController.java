@@ -1,6 +1,5 @@
 package projetosg10.survey.controller;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -23,27 +22,17 @@ public class ViewController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session) {
-        if (session.getAttribute("adminId") == null) {
-            return "redirect:/login";
-        }
+    public String dashboard() {
         return "dashboard";
     }
 
     @GetMapping("/clients")
-    public String clients(HttpSession session) {
-        if (session.getAttribute("adminId") == null) {
-            return "redirect:/login";
-        }
+    public String clients() {
         return "clients";
     }
 
-    // ADICIONADO: Novo mapeamento para a página de pesquisas
     @GetMapping("/surveys")
-    public String surveys(HttpSession session) {
-        if (session.getAttribute("adminId") == null) {
-            return "redirect:/login";
-        }
-        return "surveys"; // Isso vai carregar o arquivo surveys.html
+    public String surveys() {
+        return "surveys";
     }
 }

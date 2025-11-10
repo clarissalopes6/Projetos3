@@ -43,25 +43,59 @@
         await checkSession();
     });
 
+    function getAuthHeaders() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return null;
+        }
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
     async function checkSession() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
         try {
-            const response = await fetch('/api/auth/check');
+            const response = await fetch('/api/auth/check', {
+                headers: getAuthHeaders()
+            });
+            
             if (response.ok) {
                 const admin = await response.json();
                 document.getElementById('userName').textContent = admin.name;
+                localStorage.setItem('user', JSON.stringify(admin));
             } else {
+                localStorage.clear();
                 window.location.href = '/login';
             }
         } catch (error) {
+            localStorage.clear();
             window.location.href = '/login';
         }
     }
 
     async function logout() {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            window.location.href = '/login';
+            const token = localStorage.getItem('token');
+            if (token) {
+                await fetch('/api/auth/logout', { 
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            }
         } catch (error) {
+            console.error('Erro ao fazer logout', error);
+        } finally {
+            localStorage.clear();
             window.location.href = '/login';
         }
     }

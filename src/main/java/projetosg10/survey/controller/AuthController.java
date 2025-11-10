@@ -1,6 +1,5 @@
 package projetosg10.survey.controller;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +9,11 @@ import projetosg10.survey.dto.AdminDTO;
 import projetosg10.survey.dto.LoginDTO;
 import projetosg10.survey.dto.RegisterDTO;
 import projetosg10.survey.service.AdminService;
+import projetosg10.survey.util.JwtUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,49 +23,66 @@ public class AuthController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO dto, HttpSession session) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO dto) {
         try {
             AdminDTO admin = adminService.register(dto);
-            session.setAttribute("adminId", admin.getId());
-            session.setAttribute("adminName", admin.getName());
-            return ResponseEntity.status(HttpStatus.CREATED).body(admin);
+            
+            String sessionId = UUID.randomUUID().toString();
+            String token = jwtUtil.generateToken(admin.getEmail(), sessionId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("admin", admin);
+            response.put("token", token);
+            response.put("sessionId", sessionId);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto, HttpSession session) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto) {
         try {
             AdminDTO admin = adminService.login(dto);
-            session.setAttribute("adminId", admin.getId());
-            session.setAttribute("adminName", admin.getName());
-            return ResponseEntity.ok(admin);
+            
+            String sessionId = UUID.randomUUID().toString();
+            String token = jwtUtil.generateToken(admin.getEmail(), sessionId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("admin", admin);
+            response.put("token", token);
+            response.put("sessionId", sessionId);
+            
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
-        session.invalidate();
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok("Logout realizado com sucesso");
     }
 
     @GetMapping("/check")
-    public ResponseEntity<?> checkSession(HttpSession session) {
-        Long adminId = (Long) session.getAttribute("adminId");
-        if (adminId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autenticado");
-        }
-        
+    public ResponseEntity<?> checkSession(@RequestHeader("Authorization") String authHeader) {
         try {
-            AdminDTO admin = adminService.findById(adminId);
+            String token = authHeader.substring(7);
+            String email = jwtUtil.extractUsername(token);
+            
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado");
+            }
+            
+            AdminDTO admin = adminService.findByEmail(email);
             return ResponseEntity.ok(admin);
-        } catch (RuntimeException e) {
-            session.invalidate();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sessão inválida");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         }
     }
 }

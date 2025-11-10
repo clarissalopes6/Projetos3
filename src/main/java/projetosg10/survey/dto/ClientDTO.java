@@ -13,4 +13,8 @@ public class ClientDTO {
     private String name;
 
     private String email;
+
+    private String phone;
+
+    private String cpfCnpj;
 }
