@@ -11,18 +11,12 @@ import projetosg10.survey.repository.SurveyRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Classe de serviço para gerenciar a lógica de negócios das Pesquisas.
- */
 @Service
 public class SurveyService {
 
     @Autowired
     private SurveyRepository surveyRepository;
 
-    /**
-     * Converte uma entidade Survey em um SurveyDTO.
-     */
     private SurveyDTO toDTO(Survey survey) {
         return new SurveyDTO(
                 survey.getId(),
@@ -52,7 +46,7 @@ public class SurveyService {
         Survey survey = new Survey();
         survey.setTitle(dto.getTitle());
         survey.setDescription(dto.getDescription());
-        survey.setActive(true); // Pesquisas começam ativas por padrão
+        survey.setActive(true);
 
         survey = surveyRepository.save(survey);
         return toDTO(survey);

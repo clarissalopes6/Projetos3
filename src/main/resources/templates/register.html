@@ -3,39 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Sistema de Pesquisas</title>
+    <title>Criar sua conta - FEEDPro</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <h2>Registrar</h2>
+    <div class="register-container">
+        <div class="register-left">
+            <div class="logo-section">
+                <img src="/images/feedpro_png_1.png" alt="FEEDPro Logo" class="logo">
+            </div>
             
-            <div class="alert alert-error" id="alertError"></div>
-
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="name">Nome</label>
-                    <input type="text" id="name" required>
+            <h1>Transforme feedback em resultados</h1>
+            <p class="subtitle">A plataforma completa para empresários que desejam entender melhor seus clientes e tomar decisões baseadas em dados reais.</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <img src="/images/Icon_bullet_point.svg" alt="Check" class="feature-icon">
+                    <span>Gestão completa de clientes</span>
                 </div>
-
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required>
+                <div class="feature-item">
+                    <img src="/images/Icon_bullet_point.svg" alt="Check" class="feature-icon">
+                    <span>Criação ilimitada de pesquisas</span>
                 </div>
-
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" required minlength="6">
-                    <small style="color: #666;">Mínimo 6 caracteres</small>
+                <div class="feature-item">
+                    <img src="/images/Icon_bullet_point.svg" alt="Check" class="feature-icon">
+                    <span>Análise de dados com IA</span>
                 </div>
+                <div class="feature-item">
+                    <img src="/images/Icon_bullet_point.svg" alt="Check" class="feature-icon">
+                    <span>Relatórios personalizados</span>
+                </div>
+                <div class="feature-item">
+                    <img src="/images/Icon_bullet_point.svg" alt="Check" class="feature-icon">
+                    <span>Suporte especializado</span>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <h3>10k+</h3>
+                    <p>Empresas</p>
+                </div>
+                <div class="stat-item">
+                    <h3>2M+</h3>
+                    <p>Pesquisas</p>
+                </div>
+                <div class="stat-item">
+                    <h3>98%</h3>
+                    <p>Satisfação</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="register-right">
+            <div class="register-card">
+                <div class="card-header">
+                    <h2>Crie sua conta</h2>
+                    <p class="trial-text">Comece a usar o FEEDPRO gratuitamente por 14 dias</p>
+                </div>
+                
+                <div class="alert alert-error" id="alertError"></div>
 
-                <button type="submit">Registrar</button>
-            </form>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="fullName">Nome Completo *</label>
+                        <div class="input-with-icon">
+                            <img src="/images/Icon_profile.svg" alt="Perfil" class="input-icon">
+                            <input type="text" id="fullName" placeholder="Seu nome completo" required minlength="3" maxlength="100">
+                        </div>
+                    </div>
 
-            <div class="text-center">
-                <p>Já tem uma conta? <a href="/login">Faça login</a></p>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <div class="input-with-icon">
+                            <img src="/images/Icon_empresa.svg" alt="Email" class="input-icon">
+                            <input type="email" id="email" placeholder="seu@email.com" required maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Senha *</label>
+                        <div class="input-with-icon">
+                            <img src="/images/cadeado.svg" alt="Senha" class="input-icon">
+                            <input type="password" id="password" placeholder="Mínimo 6 caracteres" required minlength="6" maxlength="50">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-continue">
+                        Continuar
+                        <img src="/images/seta.svg" alt="Seta" class="btn-arrow">
+                    </button>
+                </form>
+
+                <div class="login-link">
+                    <p>Já tem uma conta? <a href="/login">Fazer login</a></p>
+                </div>
+                
+                <div class="security-badge">
+                    <img src="/images/cadeado.svg" alt="Seguro" class="security-icon">
+                    Seus dados estão protegidos com criptografia SSL
+                </div>
             </div>
         </div>
     </div>
@@ -44,10 +112,29 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const name = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (name.length < 3) {
+                showError('Nome deve ter no mínimo 3 caracteres');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('Por favor, insira um email válido');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Senha deve ter no mínimo 6 caracteres');
+                return;
+            }
+
             const data = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
+                name: name,
+                email: email,
+                password: password
             };
 
             try {
@@ -74,6 +161,11 @@
                 console.error(error);
             }
         });
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
 
         function showError(message) {
             const alert = document.getElementById('alertError');

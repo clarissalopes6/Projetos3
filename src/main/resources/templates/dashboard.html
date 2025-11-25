@@ -3,102 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema de Pesquisas</title>
+    <title>Dashboard - FEEDPro</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
-<header>
-    <div class="container">
-        <h1>Sistema de Pesquisas</h1>
-        <nav>
-            <span class="user-info">Olá, <strong id="userName"></strong></span>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/clients">Clientes</a>
-            <a href="/surveys">Pesquisas</a>
-            <button class="btn-logout" onclick="logout()">Sair</button>
-        </nav>
-    </div>
-</header>
-
-<div class="container">
-    <div class="card">
-        <h2>Bem-vindo ao Sistema de Pesquisas</h2>
-        <p>Gerencie seus clientes e pesquisas de forma simples e organizada.</p>
-        <p>Use o menu acima para navegar.</p>
-    </div>
-
-    <div class="card">
-        <h2>Ações Rápidas</h2>
-        <a href="/clients" style="text-decoration: none;">
-            <button class="btn-new">Gerenciar Clientes</button>
-        </a>
-        <a href="/surveys" style="text-decoration: none; margin-left: 10px;">
-            <button class="btn-new">Gerenciar Pesquisas</button>
-        </a>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        await checkSession();
-    });
-
-    function getAuthHeaders() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/login';
-            return null;
-        }
-        return {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        };
-    }
-
-    async function checkSession() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/login';
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/auth/check', {
-                headers: getAuthHeaders()
-            });
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/images/feedpro_png_1.png" alt="FEEDPro" class="sidebar-logo">
+            </div>
             
-            if (response.ok) {
-                const admin = await response.json();
-                document.getElementById('userName').textContent = admin.name;
-                localStorage.setItem('user', JSON.stringify(admin));
-            } else {
-                localStorage.clear();
-                window.location.href = '/login';
-            }
-        } catch (error) {
-            localStorage.clear();
-            window.location.href = '/login';
-        }
-    }
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-label">NAVEGAÇÃO</span>
+                    <a href="/dashboard" class="nav-item active">
+                        <img src="/images/Icon_dashboard.svg" alt="" class="nav-icon">
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/clients" class="nav-item">
+                        <img src="/images/Icon_profile.svg" alt="" class="nav-icon">
+                        <span>Base de Clientes</span>
+                    </a>
+                    <a href="/surveys" class="nav-item">
+                        <img src="/images/Icon_editor_pesquisas.svg" alt="" class="nav-icon">
+                        <span>Editor de Pesquisas</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="/images/Icon_disparar.svg" alt="" class="nav-icon">
+                        <span>Disparar Pesquisas</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="/images/Icon_metricas.svg" alt="" class="nav-icon">
+                        <span>Métricas e Resultados</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="/images/Icon_ia.svg" alt="" class="nav-icon">
+                        <span>Análise de IA</span>
+                    </a>
+                </div>
+                <div class="nav-section nav-footer">
+                    <a href="#" class="nav-item nav-logout" onclick="logout(); return false;">
+                        <span>Sair</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
 
-    async function logout() {
-        try {
+        <div class="main-content">
+            <header class="top-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p class="subtitle">Visão geral do sistema de pesquisas</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="color: #6b7280; font-size: 14px; margin-bottom: 4px;">Bem-vindo(a),</p>
+                    <p style="color: #1f2937; font-size: 18px; font-weight: 600;" id="userName">Carregando...</p>
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <img src="/images/Icon_profile.svg" alt="Clientes">
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-label">Total de Clientes</p>
+                        <h2 class="stat-value">1.247</h2>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <img src="/images/Icon_editor_pesquisas.svg" alt="Pesquisas">
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-label">Pesquisas</p>
+                        <h2 class="stat-value">42</h2>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <img src="/images/Icon_metricas.svg" alt="Respostas">
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-label">Respostas</p>
+                        <h2 class="stat-value">8.953</h2>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <img src="/images/Icon_ia.svg" alt="Taxa">
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-label">Taxa de Resposta</p>
+                        <h2 class="stat-value">72%</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>Ações Rápidas</h3>
+                <div class="action-buttons">
+                    <button class="action-btn blue" onclick="window.location.href='/clients'">
+                        <img src="/images/Icon_profile.svg" alt="" class="btn-icon">
+                        <span>Cadastrar Cliente</span>
+                    </button>
+                    <button class="action-btn blue">
+                        <img src="/images/Icon_editor_pesquisas.svg" alt="" class="btn-icon">
+                        <span>Nova Pesquisa</span>
+                    </button>
+                    <button class="action-btn blue">
+                        <img src="/images/Icon_disparar.svg" alt="" class="btn-icon">
+                        <span>Disparar Pesquisas</span>
+                    </button>
+                    <button class="action-btn blue">
+                        <img src="/images/Icon_metricas.svg" alt="" class="btn-icon">
+                        <span>Ver Resultados</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="two-column-grid">
+                <div class="content-card">
+                    <h3>Pesquisas Recentes</h3>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h4>Pesquisa de Satisfação Q1 2025</h4>
+                            <p class="list-item-subtitle">234 respostas</p>
+                        </div>
+                        <div class="list-item-meta">15/03</div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h4>NPS Trimestral</h4>
+                            <p class="list-item-subtitle">189 respostas</p>
+                        </div>
+                        <div class="list-item-meta">10/03</div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h4>Feedback de Produto</h4>
+                            <p class="list-item-subtitle">156 respostas</p>
+                        </div>
+                        <div class="list-item-meta">05/03</div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3>Atividade do Sistema</h3>
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p><strong>Nova pesquisa criada:</strong> "Avaliação de Serviço"</p>
+                            <span class="activity-time">10:30</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p><strong>Cliente cadastrado:</strong> Empresa XYZ Ltda</p>
+                            <span class="activity-time">09:15</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p><strong>Pesquisa disparada para 45 clientes</strong></p>
+                            <span class="activity-time">08:45</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-content">
+                            <p><strong>Relatório de NPS gerado</strong></p>
+                            <span class="activity-time">Ontem</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkSession();
+            loadDashboardData();
+        });
+
+        async function checkSession() {
             const token = localStorage.getItem('token');
-            if (token) {
-                await fetch('/api/auth/logout', { 
-                    method: 'POST',
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/check', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
+                
+                if (response.ok) {
+                    const admin = await response.json();
+                    document.getElementById('userName').textContent = admin.name;
+                } else {
+                    localStorage.clear();
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.log('Erro ao verificar sessão:', error);
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.name) {
+                    document.getElementById('userName').textContent = user.name;
+                }
             }
-        } catch (error) {
-            console.error('Erro ao fazer logout', error);
-        } finally {
+        }
+
+        async function loadDashboardData() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const clientsResponse = await fetch('/api/clients', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (clientsResponse.ok) {
+                    const clients = await clientsResponse.json();
+                    updateClientCount(clients.length);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do dashboard:', error);
+            }
+
+            try {
+                const surveysResponse = await fetch('/api/surveys', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (surveysResponse.ok) {
+                    const surveys = await surveysResponse.json();
+                    updateSurveyCount(surveys.length);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar pesquisas:', error);
+            }
+        }
+
+        function updateClientCount(count) {
+            const statElements = document.querySelectorAll('.stat-value');
+            if (statElements[0]) {
+                statElements[0].textContent = count;
+            }
+        }
+
+        function updateSurveyCount(count) {
+            const statElements = document.querySelectorAll('.stat-value');
+            if (statElements[1]) {
+                statElements[1].textContent = count;
+            }
+        }
+
+        function logout() {
             localStorage.clear();
             window.location.href = '/login';
         }
-    }
-</script>
+    </script>
 </body>
 </html>

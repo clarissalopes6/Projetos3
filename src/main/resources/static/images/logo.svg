@@ -1,0 +1,24 @@
+<svg width="180" height="60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="180" height="60" fill="url(#bgGradient)" rx="8"/>
+  
+  <g transform="translate(12, 15)">
+    <path d="M 0,0 L 12,15 L 0,30 Z" fill="white" opacity="0.95"/>
+    <path d="M 12,0 L 24,15 L 12,30 Z" fill="white" opacity="0.75"/>
+    <path d="M 24,0 L 36,15 L 24,30 Z" fill="white" opacity="0.55"/>
+  </g>
+  
+  <text x="55" y="38" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" fill="white" letter-spacing="-1">
+    FEED
+  </text>
+  
+  <text x="115" y="38" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="300" fill="white" letter-spacing="-0.5">
+    Pro
+  </text>
+</svg>

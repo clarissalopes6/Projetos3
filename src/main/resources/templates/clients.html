@@ -3,86 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Clientes</title>
+    <title>Base de Clientes - FEEDPro</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/clients.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>Sistema de Pesquisas</h1>
-            <nav>
-                <span class="user-info">Olá, <strong id="userName"></strong></span>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/clients">Clientes</a>
-                <button class="btn-logout" onclick="logout()">Sair</button>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/images/logo.png" alt="FEEDPro" class="sidebar-logo" onerror="this.src='/images/logo.svg'">
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-label">NAVEGAÇÃO</span>
+                    <a href="/dashboard" class="nav-item">
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/clients" class="nav-item active">
+                        <span>Base de Clientes</span>
+                    </a>
+                    <a href="/surveys" class="nav-item">
+                        <span>Editor de Pesquisas</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span>Disparar Pesquisas</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span>Métricas e Resultados</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span>Análise de IA</span>
+                    </a>
+                </div>
+                <div class="nav-section" style="margin-top: auto; padding: 20px 0;">
+                    <a href="#" class="nav-item" onclick="logout(); return false;" style="color: #ef4444;">
+                        <span>Sair</span>
+                    </a>
+                </div>
             </nav>
-        </div>
-    </header>
+        </aside>
 
-    <div class="container">
-        <div class="alert alert-success" id="alertSuccess"></div>
-        <div class="alert alert-error" id="alertError"></div>
-
-        <div class="card">
-            <button class="btn-new" onclick="showForm()">+ Novo Cliente</button>
-
-            <div class="form-section" id="formSection">
-                <h2 id="formTitle">Novo Cliente</h2>
-                <form id="clientForm">
-                    <input type="hidden" id="clientId">
-                    
-                    <div class="form-group">
-                        <label for="name">Nome *</label>
-                        <input type="text" id="name" required>
+        <div class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Base de Clientes</h1>
+                    <p class="subtitle">Gestão e organização do público-alvo</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="text-align: right;">
+                        <p style="color: #6b7280; font-size: 12px; margin-bottom: 2px;">Usuário:</p>
+                        <p style="color: #1f2937; font-size: 14px; font-weight: 600;" id="userName">Carregando...</p>
                     </div>
+                    <button class="btn-new-client" onclick="showAddClientModal()">
+                        + Novo Cliente
+                    </button>
+                </div>
+            </header>
 
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" required>
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar cliente..." onkeyup="filterClients()">
+                </div>
+                <button class="btn-filter">
+                    Filtros
+                </button>
+            </div>
+
+            <div class="clients-table-container">
+                <h3>Lista de Clientes</h3>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>CPF/CNPJ</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <span class="pagination-info">Mostrando 1-6 de 100</span>
+                    <div class="pagination-buttons">
+                        <button class="pagination-btn" disabled>Anterior</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">Próximo</button>
                     </div>
-
-                    <div class="form-group">
-                        <label for="phone">Telefone</label>
-                        <input type="text" id="phone">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cpfCnpj">CPF/CNPJ *</label>
-                        <input type="text" id="cpfCnpj" required>
-                    </div>
-
-                    <button type="submit">Salvar</button>
-                    <button type="button" class="btn-cancel" onclick="hideForm()">Cancelar</button>
-                </form>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="card">
-            <h2>Lista de Clientes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefone</th>
-                        <th>CPF/CNPJ</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="clientsTableBody">
-                    <tr>
-                        <td colspan="6" style="text-align: center;">Carregando...</td>
-                    </tr>
-                </tbody>
-            </table>
+    <div id="addClientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Adicionar Novo Cliente</h2>
+                <button class="close-btn" onclick="closeAddClientModal()">&times;</button>
+            </div>
+            <form id="clientForm" onsubmit="handleAddClient(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientName">Nome *</label>
+                        <input type="text" id="clientName" required placeholder="Nome da empresa">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientEmail">Email *</label>
+                        <input type="email" id="clientEmail" required placeholder="email@empresa.com">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientPhone">Telefone</label>
+                        <input type="tel" id="clientPhone" placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientCpfCnpj">CPF/CNPJ *</label>
+                        <input type="text" id="clientCpfCnpj" required placeholder="000.000.000-00">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddClientModal()">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar Cliente</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
         const API_URL = '/api/clients';
 
-        // Carregar clientes ao iniciar a página
         document.addEventListener('DOMContentLoaded', async () => {
             await checkSession();
             loadClients();
@@ -109,177 +170,128 @@
 
             try {
                 const response = await fetch('/api/auth/check', {
-                    headers: getAuthHeaders()
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
                 
                 if (response.ok) {
                     const admin = await response.json();
                     document.getElementById('userName').textContent = admin.name;
                 } else {
-                    localStorage.clear();
-                    window.location.href = '/login';
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    if (user.name) {
+                        document.getElementById('userName').textContent = user.name;
+                    }
                 }
             } catch (error) {
-                localStorage.clear();
-                window.location.href = '/login';
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.name) {
+                    document.getElementById('userName').textContent = user.name;
+                }
             }
         }
 
-        async function logout() {
-            try {
-                const token = localStorage.getItem('token');
-                if (token) {
-                    await fetch('/api/auth/logout', { 
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Erro ao fazer logout', error);
-            } finally {
-                localStorage.clear();
-                window.location.href = '/login';
-            }
-        }
-
-        // Carregar lista de clientes
         async function loadClients() {
             try {
                 const response = await fetch(API_URL, {
                     headers: getAuthHeaders()
                 });
-                const clients = await response.json();
                 
-                const tbody = document.getElementById('clientsTableBody');
-                
-                if (clients.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum cliente cadastrado</td></tr>';
+                if (!response.ok) {
+                    console.error('Erro ao carregar clientes');
                     return;
                 }
-
-                tbody.innerHTML = clients.map(client => `
-                    <tr>
-                        <td>${client.name}</td>
-                        <td>${client.email}</td>
-                        <td>${client.phone || '-'}</td>
-                        <td>${client.cpfCnpj}</td>
-                        <td class="${client.active ? 'status-active' : 'status-inactive'}">
-                            ${client.active ? 'Ativo' : 'Inativo'}
-                        </td>
-                        <td>
-                            <div class="actions">
-                                <button class="btn-edit" onclick="editClient(${client.id})">Editar</button>
-                                <button class="btn-toggle" onclick="toggleActive(${client.id})">
-                                    ${client.active ? 'Desativar' : 'Ativar'}
-                                </button>
-                                <button class="btn-delete" onclick="deleteClient(${client.id})">Excluir</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
+                
+                const clients = await response.json();
+                renderClients(clients);
             } catch (error) {
-                showError('Erro ao carregar clientes');
-                console.error(error);
+                console.error('Erro ao carregar clientes:', error);
             }
         }
 
-        // Mostrar formulário
-        function showForm() {
-            document.getElementById('formSection').classList.add('active');
-            document.getElementById('formTitle').textContent = 'Novo Cliente';
-            document.getElementById('clientForm').reset();
-            document.getElementById('clientId').value = '';
+        function renderClients(clients) {
+            const tbody = document.getElementById('clientsTableBody');
+            
+            if (clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum cliente cadastrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = clients.map(client => `
+                <tr>
+                    <td><strong>${client.name}</strong></td>
+                    <td>${client.email}</td>
+                    <td>${client.phone || '-'}</td>
+                    <td>${client.cpfCnpj}</td>
+                    <td>
+                        <button class="icon-btn" onclick="editClient(${client.id})" title="Editar">Editar</button>
+                        <button class="icon-btn delete" onclick="deleteClient(${client.id})" title="Excluir">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // Esconder formulário
-        function hideForm() {
-            document.getElementById('formSection').classList.remove('active');
+        function showAddClientModal() {
+            document.getElementById('addClientModal').style.display = 'block';
+        }
+
+        function closeAddClientModal() {
+            document.getElementById('addClientModal').style.display = 'none';
             document.getElementById('clientForm').reset();
         }
 
-        // Submeter formulário
-        document.getElementById('clientForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const clientId = document.getElementById('clientId').value;
+        async function handleAddClient(event) {
+            event.preventDefault();
+            
             const data = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                cpfCnpj: document.getElementById('cpfCnpj').value
+                name: document.getElementById('clientName').value,
+                email: document.getElementById('clientEmail').value,
+                phone: document.getElementById('clientPhone').value || null,
+                cpfCnpj: document.getElementById('clientCpfCnpj').value
             };
 
             try {
-                const url = clientId ? `${API_URL}/${clientId}` : API_URL;
-                const method = clientId ? 'PUT' : 'POST';
-
-                const response = await fetch(url, {
-                    method: method,
+                const response = await fetch(API_URL, {
+                    method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify(data)
                 });
 
                 if (response.ok) {
-                    showSuccess(clientId ? 'Cliente atualizado com sucesso!' : 'Cliente cadastrado com sucesso!');
-                    hideForm();
+                    closeAddClientModal();
                     loadClients();
+                    showSuccessMessage('Cliente adicionado com sucesso!');
                 } else {
                     const errorText = await response.text();
-                    console.error('Erro do servidor:', errorText);
-                    console.error('Status:', response.status);
-                    showError(errorText || 'Erro ao salvar cliente');
+                    showErrorMessage(errorText || 'Erro ao adicionar cliente');
                 }
             } catch (error) {
-                console.error('Erro na requisição:', error);
-                showError('Erro ao salvar cliente: ' + error.message);
+                showErrorMessage('Erro ao adicionar cliente');
+                console.error(error);
             }
-        });
+        }
 
-        // Editar cliente
         async function editClient(id) {
             try {
                 const response = await fetch(`${API_URL}/${id}`, {
                     headers: getAuthHeaders()
                 });
-                const client = await response.json();
-
-                document.getElementById('clientId').value = client.id;
-                document.getElementById('name').value = client.name;
-                document.getElementById('email').value = client.email;
-                document.getElementById('phone').value = client.phone || '';
-                document.getElementById('cpfCnpj').value = client.cpfCnpj;
                 
-                document.getElementById('formTitle').textContent = 'Editar Cliente';
-                document.getElementById('formSection').classList.add('active');
-            } catch (error) {
-                showError('Erro ao carregar cliente');
-                console.error(error);
-            }
-        }
-
-        // Alternar status ativo/inativo
-        async function toggleActive(id) {
-            try {
-                const response = await fetch(`${API_URL}/${id}/toggle-active`, {
-                    method: 'PATCH',
-                    headers: getAuthHeaders()
-                });
-
                 if (response.ok) {
-                    showSuccess('Status alterado com sucesso!');
-                    loadClients();
-                } else {
-                    showError('Erro ao alterar status');
+                    const client = await response.json();
+                    document.getElementById('clientName').value = client.name;
+                    document.getElementById('clientEmail').value = client.email;
+                    document.getElementById('clientPhone').value = client.phone || '';
+                    document.getElementById('clientCpfCnpj').value = client.cpfCnpj || '';
+                    showAddClientModal();
                 }
             } catch (error) {
-                showError('Erro ao alterar status');
+                showErrorMessage('Erro ao carregar cliente');
                 console.error(error);
             }
         }
 
-        // Excluir cliente
         async function deleteClient(id) {
             if (!confirm('Tem certeza que deseja excluir este cliente?')) {
                 return;
@@ -292,35 +304,59 @@
                 });
 
                 if (response.ok) {
-                    showSuccess('Cliente excluído com sucesso!');
                     loadClients();
+                    showSuccessMessage('Cliente excluído com sucesso!');
                 } else {
-                    showError('Erro ao excluir cliente');
+                    showErrorMessage('Erro ao excluir cliente');
                 }
             } catch (error) {
-                showError('Erro ao excluir cliente');
+                showErrorMessage('Erro ao excluir cliente');
                 console.error(error);
             }
         }
 
-        // Mostrar mensagem de sucesso
-        function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            alert.textContent = message;
-            alert.style.display = 'block';
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 3000);
+        function filterClients() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.querySelector('.clients-table');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < td.length - 1; j++) {
+                    if (td[j]) {
+                        const txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                
+                tr[i].style.display = found ? '' : 'none';
+            }
         }
 
-        // Mostrar mensagem de erro
-        function showError(message) {
-            const alert = document.getElementById('alertError');
-            alert.textContent = message;
-            alert.style.display = 'block';
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 3000);
+        function showSuccessMessage(message) {
+            alert(message);
+        }
+
+        function showErrorMessage(message) {
+            alert(message);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('addClientModal');
+            if (event.target == modal) {
+                closeAddClientModal();
+            }
         }
     </script>
 </body>

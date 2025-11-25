@@ -16,7 +16,4 @@ public class SurveyDTO {
     private String description;
     private Boolean active;
     private LocalDateTime createdAt;
-
-    // Futuramente, poderíamos adicionar:
-    // private int responseCount;
 }

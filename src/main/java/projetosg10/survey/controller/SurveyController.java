@@ -11,9 +11,6 @@ import projetosg10.survey.service.SurveyService;
 
 import java.util.List;
 
-/**
- * Controlador REST para gerenciar a API das Pesquisas.
- */
 @RestController
 @RequestMapping("/api/surveys")
 @CrossOrigin(origins = "*")

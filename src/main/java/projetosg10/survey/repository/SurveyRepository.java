@@ -6,5 +6,4 @@ import projetosg10.survey.model.Survey;
 
 @Repository
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
-    // Podemos adicionar consultas personalizadas aqui no futuro, se necessário.
 }
