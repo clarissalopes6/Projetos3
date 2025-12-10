@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de IA - FEEDPro</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/clients.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/images/feedpro_png_1.png" alt="FEEDPro" class="sidebar-logo">
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-label">NAVEGAÇÃO</span>
+                    <a href="/dashboard" class="nav-item">
+                        <img src="/images/Icon_dashboard.svg" alt="" class="nav-icon">
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/clients" class="nav-item">
+                        <img src="/images/Icon_profile.svg" alt="" class="nav-icon">
+                        <span>Base de Clientes</span>
+                    </a>
+                    <a href="/surveys" class="nav-item">
+                        <img src="/images/Icon_editor_pesquisas.svg" alt="" class="nav-icon">
+                        <span>Editor de Pesquisas</span>
+                    </a>
+                    <a href="/send-surveys" class="nav-item">
+                        <img src="/images/Icon_disparar.svg" alt="" class="nav-icon">
+                        <span>Disparar Pesquisas</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="/images/Icon_metricas.svg" alt="" class="nav-icon">
+                        <span>Métricas e Resultados</span>
+                    </a>
+                    <a href="/ai-analysis" class="nav-item active">
+                        <img src="/images/Icon_ia.svg" alt="" class="nav-icon">
+                        <span>Análise de IA</span>
+                    </a>
+                </div>
+                <div class="nav-section nav-footer">
+                    <a href="#" class="nav-item nav-logout" onclick="logout(); return false;">
+                        <span>Sair</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <div class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Análise de IA</h1>
+                    <p class="subtitle">Insights inteligentes sobre feedbacks dos clientes</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="text-align: right;">
+                        <p style="color: #6b7280; font-size: 12px; margin-bottom: 2px;">Usuário:</p>
+                        <p style="color: #1f2937; font-size: 14px; font-weight: 600;" id="userName">Carregando...</p>
+                    </div>
+                    <button class="btn-new-client" onclick="generateAnalysis()" id="generateBtn">
+                        Gerar Análise
+                    </button>
+                </div>
+            </header>
+
+            <div class="clients-table-container" style="margin-bottom: 20px;">
+                <h3>Estatísticas dos Feedbacks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px;">
+                    <div style="background: #d1fae5; padding: 20px; border-radius: 8px; text-align: center;">
+                        <p style="color: #065f46; font-size: 14px; margin: 0 0 8px 0;">Positivos</p>
+                        <h2 style="color: #065f46; margin: 0; font-size: 32px;" id="positiveCount">10</h2>
+                    </div>
+                    <div style="background: #fee2e2; padding: 20px; border-radius: 8px; text-align: center;">
+                        <p style="color: #991b1b; font-size: 14px; margin: 0 0 8px 0;">Negativos</p>
+                        <h2 style="color: #991b1b; margin: 0; font-size: 32px;" id="negativeCount">10</h2>
+                    </div>
+                    <div style="background: #e0e7ff; padding: 20px; border-radius: 8px; text-align: center;">
+                        <p style="color: #3730a3; font-size: 14px; margin: 0 0 8px 0;">Neutros</p>
+                        <h2 style="color: #3730a3; margin: 0; font-size: 32px;" id="neutralCount">10</h2>
+                    </div>
+                    <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; text-align: center;">
+                        <p style="color: #374151; font-size: 14px; margin: 0 0 8px 0;">Total</p>
+                        <h2 style="color: #374151; margin: 0; font-size: 32px;" id="totalCount">30</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clients-table-container" id="loadingSection" style="display: none;">
+                <div style="padding: 60px; text-align: center;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid #e5e7eb; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    </div>
+                    <p style="color: #6b7280; font-size: 16px;">Gerando análise com IA... Aguarde alguns segundos</p>
+                </div>
+            </div>
+
+            <div class="clients-table-container" id="analysisSection" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>Análise Gerada por IA</h3>
+                </div>
+                <div id="analysisContent" style="padding: 20px; background: #f9fafb; border-radius: 8px; line-height: 1.8; white-space: pre-wrap; color: #374151; font-size: 14px;">
+                </div>
+            </div>
+
+            <div class="clients-table-container" id="commentsSection" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>Comentários Analisados</h3>
+                    <button class="btn-filter" onclick="generateAnalysis()" style="padding: 8px 16px;">
+                        Randomizar Novamente
+                    </button>
+                </div>
+                <div id="commentsContent" style="padding: 20px;">
+                </div>
+            </div>
+
+            <div class="clients-table-container" id="emptySection">
+                <div style="padding: 60px; text-align: center;">
+                    <img src="/images/Icon_ia.svg" alt="IA" style="width: 80px; height: 80px; opacity: 0.3; margin-bottom: 20px;">
+                    <h3 style="color: #6b7280; margin-bottom: 10px;">Nenhuma análise gerada ainda</h3>
+                    <p style="color: #9ca3af; font-size: 14px;">Clique no botão "Gerar Análise" para criar uma análise inteligente dos feedbacks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        async function generateAnalysis() {
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingSection = document.getElementById('loadingSection');
+            const analysisSection = document.getElementById('analysisSection');
+            const commentsSection = document.getElementById('commentsSection');
+            const emptySection = document.getElementById('emptySection');
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Gerando...';
+            loadingSection.style.display = 'block';
+            analysisSection.style.display = 'none';
+            commentsSection.style.display = 'none';
+            emptySection.style.display = 'none';
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/ai/analyze', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    document.getElementById('positiveCount').textContent = data.positiveCount;
+                    document.getElementById('negativeCount').textContent = data.negativeCount;
+                    document.getElementById('neutralCount').textContent = data.neutralCount;
+                    document.getElementById('totalCount').textContent = data.totalComments;
+
+                    document.getElementById('analysisContent').textContent = data.analysis;
+
+                    renderComments(data.comments);
+
+                    loadingSection.style.display = 'none';
+                    analysisSection.style.display = 'block';
+                    commentsSection.style.display = 'block';
+                } else {
+                    alert('Erro ao gerar análise. Tente novamente.');
+                    loadingSection.style.display = 'none';
+                    emptySection.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao gerar análise. Verifique o console para mais detalhes.');
+                loadingSection.style.display = 'none';
+                emptySection.style.display = 'block';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Gerar Análise';
+            }
+        }
+
+        function renderComments(comments) {
+            const container = document.getElementById('commentsContent');
+            
+            const html = comments.map((comment, index) => {
+                let badgeColor = '#e0e7ff';
+                let textColor = '#3730a3';
+                let sentiment = 'Neutro';
+                
+                if (comment.includes('Excelente') || comment.includes('Adorei') || comment.includes('ótimo') || 
+                    comment.includes('altíssima') || comment.includes('excepcional') || comment.includes('Melhor') ||
+                    comment.includes('satisfeito') || comment.includes('Recomendo') || comment.includes('inovador') ||
+                    comment.includes('atenciosa') || comment.includes('rápida') || comment.includes('fácil')) {
+                    badgeColor = '#d1fae5';
+                    textColor = '#065f46';
+                    sentiment = 'Positivo';
+                } else if (comment.includes('Péssimo') || comment.includes('defeito') || comment.includes('atrasou') ||
+                           comment.includes('horrível') || comment.includes('alto') || comment.includes('bugs') ||
+                           comment.includes('errado') || comment.includes('enganosa') || comment.includes('Cancelei') ||
+                           comment.includes('não recomendo') || comment.includes('frustrante') || comment.includes('decepcionante')) {
+                    badgeColor = '#fee2e2';
+                    textColor = '#991b1b';
+                    sentiment = 'Negativo';
+                }
+                
+                return `
+                    <div style="margin-bottom: 15px; padding: 15px; background: white; border-left: 4px solid ${textColor}; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: #374151;">Comentário ${index + 1}</span>
+                            <span style="background: ${badgeColor}; color: ${textColor}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">
+                                ${sentiment}
+                            </span>
+                        </div>
+                        <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0;">"${comment}"</p>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+
+        async function loadUserInfo() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const response = await fetch('/api/auth/check', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userName').textContent = user.name || user.username;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuário:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        window.onload = async function() {
+            await loadUserInfo();
+        };
+    </script>
+</body>
+</html>

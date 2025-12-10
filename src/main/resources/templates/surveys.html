@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Pesquisas</title>
+    <title>Editor de Pesquisas - FEEDPro</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/clients.css">
     <style>
         textarea {
             width: 100%;
@@ -19,66 +21,114 @@
     </style>
 </head>
 <body>
-<header>
-    <div class="container">
-        <h1>Sistema de Pesquisas</h1>
-        <nav>
-            <span class="user-info">Olá, <strong id="userName"></strong></span>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/clients">Clientes</a>
-            <a href="/surveys">Pesquisas</a>
-            <button class="btn-logout" onclick="logout()">Sair</button>
-        </nav>
-    </div>
-</header>
-
-<div class="container">
-    <div class="alert alert-success" id="alertSuccess"></div>
-    <div class="alert alert-error" id="alertError"></div>
-
-    <div class="card">
-        <button class="btn-new" onclick="showForm()">+ Nova Pesquisa</button>
-
-        <div class="form-section" id="formSection">
-            <h2 id="formTitle">Nova Pesquisa</h2>
-            <form id="surveyForm">
-                <input type="hidden" id="surveyId">
-
-                <div class="form-group">
-                    <label for="title">Título *</label>
-                    <input type="text" id="title" required>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/images/feedpro_png_1.png" alt="FEEDPro" class="sidebar-logo">
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-label">NAVEGAÇÃO</span>
+                    <a href="/dashboard" class="nav-item">
+                        <img src="/images/Icon_dashboard.svg" alt="" class="nav-icon">
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/clients" class="nav-item">
+                        <img src="/images/Icon_profile.svg" alt="" class="nav-icon">
+                        <span>Base de Clientes</span>
+                    </a>
+                    <a href="/surveys" class="nav-item active">
+                        <img src="/images/Icon_editor_pesquisas.svg" alt="" class="nav-icon">
+                        <span>Editor de Pesquisas</span>
+                    </a>
+                    <a href="/send-surveys" class="nav-item">
+                        <img src="/images/Icon_disparar.svg" alt="" class="nav-icon">
+                        <span>Disparar Pesquisas</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="/images/Icon_metricas.svg" alt="" class="nav-icon">
+                        <span>Métricas e Resultados</span>
+                    </a>
+                    <a href="/ai-analysis" class="nav-item">
+                        <img src="/images/Icon_ia.svg" alt="" class="nav-icon">
+                        <span>Análise de IA</span>
+                    </a>
                 </div>
-
-                <div class="form-group">
-                    <label for="description">Descrição</label>
-                    <textarea id="description"></textarea>
+                <div class="nav-section nav-footer">
+                    <a href="#" class="nav-item nav-logout" onclick="logout(); return false;">
+                        <span>Sair</span>
+                    </a>
                 </div>
+            </nav>
+        </aside>
 
-                <button type="submit">Salvar</button>
-                <button type="button" class="btn-cancel" onclick="hideForm()">Cancelar</button>
-            </form>
+        <div class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Editor de Pesquisas</h1>
+                    <p class="subtitle">Crie e gerencie suas pesquisas de satisfação</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="text-align: right;">
+                        <p style="color: #6b7280; font-size: 12px; margin-bottom: 2px;">Usuário:</p>
+                        <p style="color: #1f2937; font-size: 14px; font-weight: 600;" id="userName">Carregando...</p>
+                    </div>
+                    <button class="btn-new-client" onclick="showForm()">
+                        + Nova Pesquisa
+                    </button>
+                </div>
+            </header>
+
+            <div class="alert alert-success" id="alertSuccess" style="display: none; margin-bottom: 20px; padding: 15px; background: #d1fae5; color: #065f46; border-radius: 8px;"></div>
+            <div class="alert alert-error" id="alertError" style="display: none; margin-bottom: 20px; padding: 15px; background: #fee2e2; color: #991b1b; border-radius: 8px;"></div>
+
+            <div class="clients-table-container" id="formSection" style="display: none;">
+                <h3 id="formTitle">Nova Pesquisa</h3>
+                <form id="surveyForm" style="padding: 20px;">
+                    <input type="hidden" id="surveyId">
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="title">Título *</label>
+                            <input type="text" id="title" required placeholder="Digite o título da pesquisa">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="description">Descrição</label>
+                            <textarea id="description" placeholder="Digite a descrição da pesquisa"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="hideForm()">Cancelar</button>
+                        <button type="submit" class="btn-save">Salvar Pesquisa</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="clients-table-container">
+                <h3>Lista de Pesquisas</h3>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Descrição</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="surveysTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <div class="card">
-        <h2>Lista de Pesquisas</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Título</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-            </thead>
-            <tbody id="surveysTableBody">
-            <tr>
-                <td colspan="4" style="text-align: center;">Carregando...</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
 
 <script>
 
@@ -163,16 +213,18 @@
                     <tr>
                         <td>${survey.title}</td>
                         <td>${survey.description || '-'}</td>
-                        <td class="${survey.active ? 'status-active' : 'status-inactive'}">
-                            ${survey.active ? 'Ativa' : 'Inativa'}
+                        <td>
+                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; ${survey.active ? 'background: #d1fae5; color: #065f46;' : 'background: #fee2e2; color: #991b1b;'}">
+                                ${survey.active ? 'Ativa' : 'Inativa'}
+                            </span>
                         </td>
                         <td>
-                            <div class="actions">
-                                <button class="btn-edit" onclick="editSurvey(${survey.id})">Editar</button>
-                                <button class="btn-toggle" onclick="toggleActive(${survey.id})">
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="editSurvey(${survey.id})" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
+                                <button onclick="toggleActive(${survey.id})" style="padding: 6px 12px; background: ${survey.active ? '#f59e0b' : '#10b981'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
                                     ${survey.active ? 'Desativar' : 'Ativar'}
                                 </button>
-                                <button class="btn-delete" onclick="deleteSurvey(${survey.id})">Excluir</button>
+                                <button onclick="deleteSurvey(${survey.id})" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
                             </div>
                         </td>
                     </tr>
@@ -184,14 +236,14 @@
     }
 
     function showForm() {
-        document.getElementById('formSection').classList.add('active');
+        document.getElementById('formSection').style.display = 'block';
         document.getElementById('formTitle').textContent = 'Nova Pesquisa';
         document.getElementById('surveyForm').reset();
         document.getElementById('surveyId').value = '';
     }
 
     function hideForm() {
-        document.getElementById('formSection').classList.remove('active');
+        document.getElementById('formSection').style.display = 'none';
         document.getElementById('surveyForm').reset();
     }
 
@@ -240,7 +292,7 @@
             document.getElementById('description').value = survey.description || '';
 
             document.getElementById('formTitle').textContent = 'Editar Pesquisa';
-            document.getElementById('formSection').classList.add('active');
+            document.getElementById('formSection').style.display = 'block';
         } catch (error) {
             showError('Erro ao carregar pesquisa');
             console.error(error);

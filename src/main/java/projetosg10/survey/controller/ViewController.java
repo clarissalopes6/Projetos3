@@ -35,4 +35,14 @@ public class ViewController {
     public String surveys() {
         return "surveys";
     }
+
+    @GetMapping("/send-surveys")
+    public String sendSurveys() {
+        return "send-surveys";
+    }
+
+    @GetMapping("/ai-analysis")
+    public String aiAnalysis() {
+        return "ai-analysis";
+    }
 }

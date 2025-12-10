@@ -34,3 +34,6 @@ build/
 
 ### Documentation ###
 ARCHITECTURE.md
+
+### Application Properties ###
+src/main/resources/application.properties
